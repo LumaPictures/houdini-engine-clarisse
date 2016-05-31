@@ -1,0 +1,17 @@
+class "HapiCurve" "GeometryFur" {
+    #version 0.9
+    category "/Geometry"
+    doc "Hapi Curves"
+    attribute_group "geometry" {
+    	string "file_path" {
+            value ""
+        }
+        string "shape_name" {
+            value ""
+        }
+        long "rebuild_trigger" {
+            value 0
+        }
+    }
+}
+ 

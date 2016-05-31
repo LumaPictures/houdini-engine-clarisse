@@ -1,0 +1,16 @@
+class "HapiMeshFromMemory" "GeometryPolymesh" {
+    #version 0.9
+    category "/Geometry"
+    doc "Mesh From Memory"
+    attribute_group "geometry" {
+        string "file_path" {
+            value ""
+        }
+        string "shape_name" {
+            value ""
+        }
+        long "rebuild_trigger" {
+        	value 0
+        }
+    }
+}
