@@ -1,6 +1,14 @@
 set(HAPI_MODULE_NAME "hapi")
+set(HAPI_SERVER_NAME "hapi_server")
 
-file(GLOB SOURCES "*.cpp")
+file(GLOB HEADERS "*.h*")
+set(SOURCES
+    hapi.cpp
+    hapi_curve.cpp
+    hapi_curve_from_memory.cpp
+    hapi_mesh.cpp
+    hapi_mesh_from_memory.cpp
+    register_module.cpp)
 
 gen_cmas(MODULE_CMAS_HAPI)
 message(STATUS "MODULE_CMAS_HAPI ${MODULE_CMAS_HAPI}")
@@ -11,8 +19,8 @@ set(HAPI_LIB_DIR "/luma/soft/applications/houdini-15.0.179/dsolib")
 include_directories(SYSTEM ${CLARISSE_INCLUDE_DIR})
 link_directories(${CLARISSE_LIBRARY_DIR})
 
-include_directories(SYSTEM ${HAPI_INCLUDE_DIR})
-link_directories(${HAPI_LIB_DIR})
+include_directories(SYSTEM ${HOUDINI_INCLUDE_DIR})
+link_directories(${HOUDINI_LIB_DIR})
 
 add_library(${HAPI_MODULE_NAME} SHARED ${SOURCES} ${MODULE_CMAS_HAPI})
 set_target_properties(${HAPI_MODULE_NAME} PROPERTIES PREFIX "")
@@ -22,8 +30,8 @@ target_link_libraries(${HAPI_MODULE_NAME} HAPIL ix_core ix_gmath ix_geometry ix_
 install(TARGETS ${HAPI_MODULE_NAME}
         LIBRARY DESTINATION modules)
 
-add_executable("hapi_server" hapi_server.cpp)
-target_link_libraries("hapi_server" HAPIL)
+add_executable(${HAPI_SERVER_NAME} hapi_server.cpp)
+target_link_libraries(${HAPI_SERVER_NAME} HAPIL)
 
-install(TARGETS "hapi_server"
+install(TARGETS ${HAPI_SERVER_NAME}
         RUNTIME DESTINATION bin)

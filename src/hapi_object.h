@@ -1,13 +1,13 @@
 #pragma once
 
-#include <HAPI.h>
+#include <HAPI/HAPI.h>
 #include <limits.h>
 
 struct HapiObjectData{
     HAPI_PartInfo part_info;
-    HAPI_AssetId asset_id;
-    HAPI_ObjectId object_id;
-    HAPI_GeoId geo_id;
+    HAPI_NodeId asset_id;
+    HAPI_NodeId object_id;
+    HAPI_NodeId geo_id;
     HAPI_Session* session;
 
     union{

@@ -16,7 +16,7 @@
 #include <of_attr.h>
 #include <of_app.h>
 #include <dso_export.h>
-#include <of_ref_context_engine.h>
+#include <of_file_reference_context_engine.h>
 #include <of_context.h>
 #include <of_object_factory.h>
 
@@ -36,7 +36,7 @@
 #include <app_object.h>
 #include <app_builtin_commands.h>
 
-#include <HAPI.h>
+#include <HAPI/HAPI.h>
 
 #include <iostream>
 #include <string>

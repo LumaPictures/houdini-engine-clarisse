@@ -1,6 +1,6 @@
 #pragma once
 
-#include <HAPI.h>
+#include <HAPI/HAPI.h>
 #include <vector>
 #include <string>
 #include <core_string.h>

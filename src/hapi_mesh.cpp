@@ -25,7 +25,7 @@
 #include <map>
 #include <pthread.h>
 
-#include <HAPI.h>
+#include <HAPI/HAPI.h>
 
 namespace {
     pthread_mutex_t g_rec_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
@@ -90,20 +90,23 @@ IX_MODULE_CLBK::create_resource(OfObject& object, const int& resource_id, void *
 
         HAPI_PartInfo& part_info = object_data->part_info;
 
-        if ((part_info.vertexCount == 0) || (part_info.faceCount == 0) || (part_info.pointAttributeCount == 0) || (part_info.pointCount == 0)) return 0;
+        if ((part_info.vertexCount == 0) || (part_info.faceCount == 0) || (part_info.pointAttributeCount == 0) || (part_info.pointCount == 0)) {
+            return 0;
+        }
 
-        HAPI_ObjectId& asset_id = object_data->asset_id;
-        HAPI_ObjectId& object_id = object_data->object_id;
-        HAPI_ObjectId& geo_id = object_data->geo_id;
-        HAPI_ObjectId& part_id = object_data->part_id;
+        auto& asset_id = object_data->asset_id;
+        auto& object_id = object_data->object_id;
+        auto& geo_id = object_data->geo_id;
+        auto& part_id = object_data->part_id;
         const HAPI_Session* session = object_data->session;
 
         CoreArray<GMathVec3f> vertices;
         CoreArray<unsigned int> polygon_vertex_count;
         CoreArray<unsigned int> polygon_vertex_indices;
         if (!export_geometry(session, asset_id, object_id, geo_id, part_id, part_info,
-                vertices, polygon_vertex_count, polygon_vertex_indices))
+                vertices, polygon_vertex_count, polygon_vertex_indices)) {
             return 0;
+        }
 
         CoreArray<GMathVec3f> velocities;
         CoreArray<GeometryUvMap> uv_maps;
@@ -123,13 +126,9 @@ IX_MODULE_CLBK::create_resource(OfObject& object, const int& resource_id, void *
                 polygon_vertex_count, shading_group_indices, shading_groups,
                 uv_maps, normal_maps, color_maps, 0);
         return polymesh;
-    }
-    else if (resource_id == ModuleGeometry::RESOURCE_ID_GEOMETRY_PROPERTIES)
-    { // create the properties (optional)
+    } else if (resource_id == ModuleGeometry::RESOURCE_ID_GEOMETRY_PROPERTIES) { // create the properties (optional)
         return 0;
-    }
-    else
-    {
+    } else {
         return 0;
     }
 }

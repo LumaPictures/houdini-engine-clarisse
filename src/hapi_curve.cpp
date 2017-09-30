@@ -55,10 +55,10 @@ IX_MODULE_CLBK::create_resource(OfObject& object, const int& resource_id, void *
         HapiObjectData* object_data = reinterpret_cast<HapiObjectData*>(object.get_module_data());
         if (object_data->asset_id == INT_MIN)
             return 0;
-        HAPI_ObjectId& asset_id = object_data->asset_id;
-        HAPI_ObjectId& object_id = object_data->object_id;
-        HAPI_ObjectId& geo_id = object_data->geo_id;
-        HAPI_ObjectId& part_id = object_data->part_id;
+        auto& asset_id = object_data->asset_id;
+        auto& object_id = object_data->object_id;
+        auto& geo_id = object_data->geo_id;
+        auto& part_id = object_data->part_id;
         HAPI_CurveInfo curve_info = object_data->curve_info;
         const HAPI_Session* session = object_data->session;
 
