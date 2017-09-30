@@ -856,7 +856,7 @@ namespace {
     }
 }
 
-class HapiContextEngine : public OfReferenceContextEngine {
+class HapiContextEngine : public OfFileReferenceContextEngine {
 public:
     static const Descriptor& get_descriptor()
     {
@@ -864,7 +864,7 @@ public:
                 &HapiContextEngine::class_info(),
                 "hapi",
                 HapiContextEngine::create_engine,
-                OfReferenceContextEngine::parse_serial
+                OfFileReferenceContextEngine::parse_serial
         };
         return desc;
     }
@@ -1000,7 +1000,7 @@ protected:
 
     virtual void populate_options()
     {
-        OfReferenceContextEngine::populate_options(); // Mandatory call as OfReferenceContextEngine attributes must be created.
+        OfFileReferenceContextEngine::populate_options(); // Mandatory call as OfReferenceContextEngine attributes must be created.
         OfContext& context = get_context();
 
         // don't save these attrs to the file
@@ -1028,7 +1028,7 @@ protected:
     // This method is called when an option attribute has changed.
     virtual void on_options_changed(OfObject& context_options)
     {
-        OfReferenceContextEngine::on_options_changed(context_options);
+        OfFileReferenceContextEngine::on_options_changed(context_options);
 
         const OfAttr* attr = context_options.get_changing_attr();
 
@@ -1105,7 +1105,7 @@ private:
         return new HapiContextEngine(ctx);
     }
 
-    HapiContextEngine(OfContext& ctx) : OfReferenceContextEngine(ctx), m_all_params_read_after_load(false)
+    HapiContextEngine(OfContext& ctx) : OfFileReferenceContextEngine(ctx), m_all_params_read_after_load(false)
     { }
 
     static HAPI_Session s_session;
@@ -1118,7 +1118,7 @@ private:
     DECLARE_CLASS;
 };
 
-IMPLEMENT_CLASS(HapiContextEngine, OfReferenceContextEngine);
+IMPLEMENT_CLASS(HapiContextEngine, OfFileReferenceContextEngine);
 
 HAPI_Session HapiContextEngine::s_session = {HAPI_SESSION_MAX, -1};
 tbb::tbb_thread* HapiContextEngine::s_delayed_release = 0;
@@ -1129,8 +1129,8 @@ void hapi_on_register_module(OfApp& app, CoreVector<OfClass *>& new_classes)
 {
     OfContext::register_engine(HapiContextEngine::class_info(), HapiContextEngine::get_descriptor);
 
-    OfReferenceContextEngine::add_file_format(HapiContextEngine::class_info(), "otl", &HapiContextEngine::load_asset_objects);
-    OfReferenceContextEngine::add_file_format(HapiContextEngine::class_info(), "hda", &HapiContextEngine::load_asset_objects);
+    OfFileReferenceContextEngine::add_file_format(HapiContextEngine::class_info(), "otl", &HapiContextEngine::load_asset_objects);
+    OfFileReferenceContextEngine::add_file_format(HapiContextEngine::class_info(), "hda", &HapiContextEngine::load_asset_objects);
 
     g_is_interactive = app.get_type() != AppBase::TYPE_PROCESS; // && true;
 
