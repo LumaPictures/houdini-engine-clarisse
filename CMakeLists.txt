@@ -10,4 +10,4 @@ set(CXX_SHARED_OPTIONS -Wall -Wsign-compare -fPIC -std=c++11 -fno-rtti)
 link_directories(${HOUDINI_LIBRARY_DIR})
 
 add_subdirectory(server)
-# add_subdirectory(plugin)
+add_subdirectory(plugin)

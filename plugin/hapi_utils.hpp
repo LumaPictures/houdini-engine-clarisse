@@ -12,22 +12,24 @@ inline std::string convert_hapi_string(const HAPI_Session* session, HAPI_StringH
 {
     int buffer_length = 0;
     HAPI_GetStringBufLength(session, string_handle, &buffer_length);
-    if (buffer_length == 0) return std::string("");
-    std::vector<char> string_data(buffer_length);
-    if (HAPI_GetString(session, string_handle, &string_data[0], buffer_length) != HAPI_RESULT_SUCCESS) return std::string("");
-    else return std::string(&string_data[0]);
+    if (buffer_length <= 0) { return std::string(""); }
+    std::vector<char> string_data(static_cast<unsigned int>(buffer_length));
+    if (HAPI_GetString(session, string_handle, &string_data[0], buffer_length) != HAPI_RESULT_SUCCESS) {
+        return std::string("");
+    } else { return std::string(&string_data[0]); }
 }
 
 inline CoreString convert_hapi_corestring(const HAPI_Session* session, HAPI_StringHandle string_handle)
 {
     int buffer_length = 0;
     HAPI_GetStringBufLength(session, string_handle, &buffer_length);
-    if (buffer_length == 0) return "";
-    std::vector<char> string_data(buffer_length);
-    if (HAPI_GetString(session, string_handle, &string_data[0], buffer_length) != HAPI_RESULT_SUCCESS) return "";
-    else return CoreString(&string_data[0]);
+    if (buffer_length <= 0) { return ""; }
+    std::vector<char> string_data(static_cast<unsigned int>(buffer_length));
+    if (HAPI_GetString(session, string_handle, &string_data[0], buffer_length) != HAPI_RESULT_SUCCESS) {
+        return "";
+    } else { return CoreString(&string_data[0]); }
 }
-
+/*
 inline CoreString get_material_name(const HAPI_Session* session, HAPI_AssetId asset, HAPI_MaterialId material)
 {
     HAPI_MaterialInfo material_info;
@@ -253,4 +255,4 @@ inline void export_materials(const HAPI_Session* session, HAPI_AssetId asset_id,
     }
     if (rec_mutex != 0)
         pthread_mutex_unlock(rec_mutex);
-}
+}*/

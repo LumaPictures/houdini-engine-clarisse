@@ -59,31 +59,21 @@ IX_MODULE_CLBK::init_class(OfClass& cls)
 }
 
 ResourceData *
-IX_MODULE_CLBK::create_resource(OfObject& object, const int& resource_id, void *data)
+IX_MODULE_CLBK::create_resource(OfObject& object, const int& resource_id, void* /*data*/)
 {
     if (resource_id == ModuleGeometry::RESOURCE_ID_GEOMETRY)
-    { // create the geometry resource
-        MeshFromMemoryData* mesh_data = reinterpret_cast<MeshFromMemoryData*>(object.get_module_data());
-        if (mesh_data->vertices.get_count() == 0) return 0;
+    {
+        auto* mesh_data = reinterpret_cast<MeshFromMemoryData*>(object.get_module_data());
+        if (mesh_data->vertices.get_count() == 0) { return nullptr; }
 
-        PolyMesh *polymesh = new PolyMesh;
+        auto* polymesh = new PolyMesh;
         polymesh->set(mesh_data->vertices, mesh_data->velocities, mesh_data->polygon_vertex_indices,
                 mesh_data->polygon_vertex_count, mesh_data->shading_group_indices, mesh_data->shading_groups,
-                mesh_data->uv_maps, mesh_data->normal_maps, mesh_data->color_maps, 0);
+                mesh_data->uv_maps, mesh_data->normal_maps, mesh_data->color_maps, nullptr);
         mesh_data->clear();
         return polymesh;
-    }
-    else if (resource_id == ModuleGeometry::RESOURCE_ID_GEOMETRY_PROPERTIES)
-    { // create the properties (optional)
-        return 0;
-    }
-    else if (resource_id == ModuleGeometry::RESOURCE_ID_COUNT)
-    {
-        return 0;
-    }
-    else
-    {
-        return 0;
+    } else {
+        return nullptr;
     }
 }
 

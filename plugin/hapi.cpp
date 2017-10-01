@@ -61,12 +61,12 @@
 #include "hapi_utils.hpp"
 
 namespace {
-    bool g_is_interactive = true;
-    unsigned int g_license_retry_wait = 5;
-    double g_license_timeout = 60.0;
-    double g_license_release = 30.0;
+    auto _isInteractive = true;
+    //unsigned int g_license_retry_wait = 5;
+    //auto g_license_timeout = 60.0;
+    //auto g_license_release = 30.0;
 
-    enum BuiltinParameters{
+    enum BuiltinParameters {
         BUILTIN_FILENAME = 0,
         BUILTIN_RELOAD,
         BUILTIN_CLEAR,
@@ -78,6 +78,7 @@ namespace {
         NUMBER_OF_BUILTIN_PARAMETERS
     };
 
+    /*
     GMathTransform convert_hapi_transform(HAPI_Session* session, HAPI_Transform* transform)
     {
         GMathTransform out_transform;
@@ -589,7 +590,7 @@ namespace {
                     HAPI_PartInfo part_info;
                     if (HAPI_GetPartInfo(session, asset_id, object_info.id, geo_info.id, part_counter, &part_info) != HAPI_RESULT_SUCCESS) continue;
                     // if is instanced then hide then instance at the right place
-                    if (g_is_interactive)
+                    if (_isInteractive)
                     {
                         const CoreString part_name = object_name + "__" + geo_name + "__" + CoreString(convert_hapi_string(session, part_info.nameSH).c_str());
                         // TODO : Add volumes
@@ -656,10 +657,10 @@ namespace {
                         }
 
 
-                        /*if (part_info.isInstanced)
-                            object->get_attribute("display_visible")->set_bool(false);
-                        else
-                            object->get_attribute("display_visible")->set_bool(true);*/
+                        //if (part_info.isInstanced)
+                        //    object->get_attribute("display_visible")->set_bool(false);
+                        //else
+                        //    object->get_attribute("display_visible")->set_bool(true);
                     }
                     else
                     {
@@ -853,7 +854,7 @@ namespace {
 
         if (read_params(session, context))
             cook_asset_objects(session, filename, context, loaded_objects);
-    }
+    }*/
 }
 
 class HapiContextEngine : public OfFileReferenceContextEngine {
@@ -874,7 +875,7 @@ public:
         // these are always called before any
         // on options change calls, so we
         // don't need to init anything there
-        if (g_is_interactive)
+        /*if (_isInteractive)
         {
             init_inprocess_session();
             if (s_session.id != -1)
@@ -902,7 +903,7 @@ public:
                 }
             }
             start_delayed_close();
-        }
+        }*/
     }
 
     static void init_inprocess_session()
@@ -929,23 +930,23 @@ public:
             {
                 const double RETRY_TIMEOUT = 100;
                 const int SECS_BETWEEN_TRIES = 1;
-                for (tbb::tick_count retry_tc = tbb::tick_count::now(); (tbb::tick_count::now() - retry_tc).seconds() < RETRY_TIMEOUT;)
-                {
-                    if (HAPI_CreateThriftNamedPipeSession(&s_session, (std::string("clarisse_pipe_thrift_") + ss.str()).c_str()) == HAPI_RESULT_SUCCESS)
-                    {
+                for (tbb::tick_count retry_tc = tbb::tick_count::now(); (tbb::tick_count::now() - retry_tc).seconds() < RETRY_TIMEOUT;) {
+                    if (HAPI_CreateThriftNamedPipeSession(&s_session, (std::string("clarisse_pipe_thrift_") + ss.str()).c_str()) ==
+                        HAPI_RESULT_SUCCESS) {
                         std::cout << "[hapi] Successfully connected to the thrift server via a named pipe." << std::endl;
                         return;
                     }
                     sleep(SECS_BETWEEN_TRIES);
                 }
+            } else {
+                std::cout << "[hapi] Error opening hapi server" << std::endl;
             }
-            else
-                std::cout << "Error opening hapi server" << std::endl;
             std::cout << "[hapi] Error connecting to the thrift named pipe server, launching an in process session." << std::endl;
             init_inprocess_session();
         }
-        else
+        else {
             stop_delayed_close();
+        }
     }    
 
     static void start_delayed_close()
@@ -957,54 +958,51 @@ public:
 
     static void stop_delayed_close()
     {        
-        if (s_delayed_release)
-        {
+        if (s_delayed_release) {
             s_delayed_release_active = false;
             s_delayed_release->join();
             delete s_delayed_release;
-            s_delayed_release = 0;
+            s_delayed_release = nullptr;
         }
     }
 
     static void setup_initial_params()
     {
-        s_thrift_handle = 0;
+        s_thrift_handle = nullptr;
         s_delayed_release_active = true;
     }
 protected:
     static void delayed_thrift_close()
     {
-        tbb::tick_count tc = tbb::tick_count::now();
+        //tbb::tick_count tc = tbb::tick_count::now();
         while (s_delayed_release_active)
         {
-            if ((tbb::tick_count::now() - tc).seconds() < g_license_release)
-                sleep(0);
-            else
-            {
+            //if ((tbb::tick_count::now() - tc).seconds() < g_license_release) {
+            //    sleep(0);
+            //} else {
                 close_thrift_server();
                 return;
-            }
+            //}
         }
     }
 
     static void close_thrift_server()
     {
-        FILE* handle = s_thrift_handle.fetch_and_store(0);
-        if (handle != 0)
-        {
-            const char* message = "close";
+        auto* handle = s_thrift_handle.fetch_and_store(nullptr);
+        if (handle != nullptr) {
+            constexpr auto message = "close";
             fwrite(message, sizeof(char), strlen(message), handle);
             pclose(handle);
         }
     }
 
-    virtual void populate_options()
+    void populate_options() override
     {
         OfFileReferenceContextEngine::populate_options(); // Mandatory call as OfReferenceContextEngine attributes must be created.
-        OfContext& context = get_context();
+        auto& context = get_context();
 
         // don't save these attrs to the file
-        OfAttr* attr = context.add_attribute("__generating_attributes__", OfAttr::TYPE_BOOL, OfAttr::CONTAINER_SINGLE);
+        auto* attr = context.add_attribute("__generating_attributes__", OfAttr::TYPE_BOOL, OfAttr::CONTAINER_SINGLE);
         attr->set_hidden(true);
         // This is required because we fill attributes during loading asset objects,
         // so we can free the houdini "universe" after finished reading the data
@@ -1026,60 +1024,53 @@ protected:
     }
 
     // This method is called when an option attribute has changed.
-    virtual void on_options_changed(OfObject& context_options)
+    void on_options_changed(OfObject& context_options) override
     {
         OfFileReferenceContextEngine::on_options_changed(context_options);
 
-        const OfAttr* attr = context_options.get_changing_attr();
+        const auto* attr = context_options.get_changing_attr();
 
-        if (attr == 0) return;
+        if (attr == nullptr) { return; }
         const CoreString attr_name = attr->get_name();
-        if (attr_name == "__generating_attributes__") return;
-        if (attr_name == "__loaded_asset_id__") return;
-        if (attr_name == "rebuild_on_parameter_change") return;
-        if (context_options.get_attribute(BUILTIN_GENERATING_ATTRIBUTES)->get_bool()) return;
-        if (attr_name == "filename")
-        {
+        if (attr_name == "__generating_attributes__") { return; }
+        if (attr_name == "__loaded_asset_id__") { return; }
+        if (attr_name == "rebuild_on_parameter_change") { return; }
+        if (context_options.get_attribute(BUILTIN_GENERATING_ATTRIBUTES)->get_bool()) { return; }
+        if (attr_name == "filename") {
             context_options.get_attribute(BUILTIN_GENERATING_ATTRIBUTES)->set_bool(true); // do I need this?
             OfAttr* last_loaded_file_attr = context_options.get_attribute("__last_loaded_file__");
             const CoreString last_loaded_file = last_loaded_file_attr->get_string();
             const CoreString current_file = attr->get_string();
             last_loaded_file_attr->set_string(current_file);
-            if (last_loaded_file != current_file)
-            {
+            if (last_loaded_file != current_file) {
                 context_options.get_attribute(BUILTIN_GENERATING_ATTRIBUTES)->set_bool(false); // do I need this?
                 return;
             }
 
             // the attributes are stored in the order of creation
             const unsigned int attribute_count = context_options.get_attribute_count();
-            for (unsigned int i = attribute_count - 1; i >= NUMBER_OF_BUILTIN_PARAMETERS; --i)
+            for (unsigned int i = attribute_count - 1; i >= NUMBER_OF_BUILTIN_PARAMETERS; --i) {
                 context_options.remove_attribute(context_options.get_attribute(i)->get_name());
+            }
             context_options.get_attribute(BUILTIN_GENERATING_ATTRIBUTES)->set_bool(false); // do I need this?
-        }
-        else if (g_is_interactive)
-        {
+        } else if (_isInteractive) {
             init_inprocess_session();
-            if (s_session.id != -1)
-            {
-                //if (m_all_params_read_after_load)
-                {
+            if (s_session.id != -1) {
+                //if (m_all_params_read_after_load) {
                     if (context_options.get_attribute(BUILTIN_REBUILD_ON_PARAMETER_CHANGE)->get_bool())
                     {
-                        if (read_params(&s_session, get_context(), attr))
+                        /*if (read_params(&s_session, get_context(), attr)) {
                             cook_asset_objects(&s_session, context_options.get_attribute(BUILTIN_FILENAME)->get_string(), get_context(), 0);
+                        }*/
                     }
-                }
-                /*else if (context_options.get_attribute(context_options.get_attribute_count() - 1) == attr)
+                /*} else if (context_options.get_attribute(context_options.get_attribute_count() - 1) == attr)
                 {
                     if (read_params(&s_session, get_context(), attr))
                         cook_asset_objects(&s_session, context_options.get_attribute(BUILTIN_FILENAME)->get_string(), get_context(), 0);
                     m_all_params_read_after_load = true;
                 }*/
             }
-        }
-        else
-        {
+        } else {
             init_outofprocess_session();
             // no need to init out of process
             // session here, because this is going to run after
@@ -1087,8 +1078,9 @@ protected:
             // but we need to close it down if this is the last context
             //if (m_all_params_read_after_load)
             {
-                if (read_params(&s_session, get_context(), attr))
+                /*if (read_params(&s_session, get_context(), attr)) {
                     cook_asset_objects(&s_session, context_options.get_attribute(BUILTIN_FILENAME)->get_string(), get_context(), 0);
+                }*/
             }
             /*else if (context_options.get_attribute(context_options.get_attribute_count() - 1) == attr)
             {
@@ -1105,7 +1097,7 @@ private:
         return new HapiContextEngine(ctx);
     }
 
-    HapiContextEngine(OfContext& ctx) : OfFileReferenceContextEngine(ctx), m_all_params_read_after_load(false)
+    explicit HapiContextEngine(OfContext& ctx) : OfFileReferenceContextEngine(ctx), m_all_params_read_after_load(false)
     { }
 
     static HAPI_Session s_session;
@@ -1132,7 +1124,7 @@ void hapi_on_register_module(OfApp& app, CoreVector<OfClass *>& new_classes)
     OfFileReferenceContextEngine::add_file_format(HapiContextEngine::class_info(), "otl", &HapiContextEngine::load_asset_objects);
     OfFileReferenceContextEngine::add_file_format(HapiContextEngine::class_info(), "hda", &HapiContextEngine::load_asset_objects);
 
-    g_is_interactive = app.get_type() != AppBase::TYPE_PROCESS; // && true;
+    _isInteractive = app.get_type() != AppBase::TYPE_PROCESS; // && true;
 
     HapiContextEngine::setup_initial_params();
 }

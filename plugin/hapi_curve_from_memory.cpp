@@ -47,22 +47,22 @@ IX_MODULE_CLBK::init_class(OfClass& cls)
 }
 
 ResourceData *
-IX_MODULE_CLBK::create_resource(OfObject& object, const int& resource_id, void *data)
+IX_MODULE_CLBK::create_resource(OfObject& object, const int& resource_id, void* /*data*/)
 {
-    if (resource_id == ModuleGeometry::RESOURCE_ID_GEOMETRY)
-    {
-        CurveFromMemoryData* curve_data = reinterpret_cast<CurveFromMemoryData*>(object.get_module_data());
+    if (resource_id == ModuleGeometry::RESOURCE_ID_GEOMETRY) {
+        auto* curve_data = reinterpret_cast<CurveFromMemoryData*>(object.get_module_data());
 
-        if (curve_data->vertices.get_count() == 0) return 0;
+        if (curve_data->vertices.get_count() == 0) { return nullptr; }
 
-        CurveMesh* curve_mesh = new CurveMesh;
+        auto* curve_mesh = new CurveMesh;
         curve_mesh->init(curve_data->vertex_count, &curve_data->vertices[0]);
-        if (curve_data->radii.get_count() == curve_data->vertices.get_count())
+        if (curve_data->radii.get_count() == curve_data->vertices.get_count()) {
             curve_mesh->set_radius(curve_data->radii);
+        }
         curve_data->clear();
         return curve_mesh;
     }
-    return 0;
+    return nullptr;
 }
 
 void*
