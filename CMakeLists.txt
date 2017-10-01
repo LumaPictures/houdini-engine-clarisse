@@ -4,6 +4,10 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
 find_package(Clarisse)
 find_package(Houdini)
-add_definitions(-Wall -Wsign-compare -fPIC -std=c++11 -fno-rtti)
 
-add_subdirectory(src)
+set(CXX_SHARED_OPTIONS -Wall -Wsign-compare -fPIC -std=c++11 -fno-rtti)
+
+link_directories(${HOUDINI_LIBRARY_DIR})
+
+add_subdirectory(server)
+# add_subdirectory(plugin)

@@ -9,10 +9,6 @@ find_path(CLARISSE_INCLUDE_DIR app.h
     PATHS ${CLARISSE_SDK_DIR}/include
     DOC "Clarisse include path")
 
-include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(Clarisse DEFAULT_MSG
-    CLARISSE_LIBRARY_DIR CLARISSE_INCLUDE_DIR)
-
 function(set_cid_includes input_dir)
     if(CID_INCLUDES)
         set(CID_INCLUDES "${CID_INCLUDES} ${input_dir}" PARENT_SCOPE)
@@ -45,3 +41,7 @@ function(gen_cmas target_env)
     endforeach()
     set(${target_env} ${TEMP_CMA_LIST} PARENT_SCOPE)
 endfunction()
+
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(Clarisse DEFAULT_MSG
+        REQUIRED_VARS CLARISSE_LIBRARY_DIR CLARISSE_INCLUDE_DIR)
